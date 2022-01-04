@@ -1,34 +1,30 @@
-const { Client, Intents, Collection } = require('discord.js');
-const { token } = require('./config.json');
-const fs = require('fs');
+const mongo = require("mongodb");
+const { Client, Intents } = require("discord.js");
+
+const { user, pass } = require("./login.json");
+const { Token, prefix } = require("./config.json");
+
+const mongoClient = mongo.MongoClient;
+const url = `mongodb+srv://${user}:${pass}@cluster0.mutie.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
-client.commands = new Collection();
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-
-for (const file of commandFiles) {
-	const command = require(`./commands/${file}`);
-	client.commands.set(command.data.name, command);
-}
-
-client.once('ready', () => {
-	console.log('Ready!');
+client.once("ready", () => {
+  console.log("Ready.");
 });
 
-client.on('interactionCreate', async interaction => {
-	if (!interaction.isCommand()) return;
+client.on("interactionCreate", async interaction => {
+  if (!interaction.isCommand()) return;
 
-	const command = client.commands.get(interaction.commandName);
+  const { commandName } = interaction;
 
-	if (!command) return;
-
-	try {
-		await command.execute(interaction);
-	} catch (error) {
-		console.error(error);
-		await interaction.reply({ content: 'There was an error while executing that command.'})
-	}
+  if (commandName === "ping") {
+    await interaction.reply("Pong!");
+  } else if (commandName === "server") {
+    await interaction.reply(`Server name: ${interaction.guild.name}\nTotal members: ${interaction.guild.memberCount}`);
+  } else if (commandName === "user") {
+    await interaction.reply(`Your tag: ${interaction.user.tag}\nYour id: ${interaction.user.id}`);
+  }
 })
 
-client.login(token);
+client.login(Token);
