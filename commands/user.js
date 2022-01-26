@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
 
 module.exports = {
+  guild: null,
   data: new SlashCommandBuilder()
     .setName("user")
     .setDescription("Replies with user info."),
